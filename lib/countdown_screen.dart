@@ -1,5 +1,5 @@
 import 'package:eyes_care/constants.dart';
-import 'package:eyes_care/main.dart';
+import 'package:eyes_care/widgets/custom_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:rocket_timer/rocket_timer.dart';
 import 'package:window_manager/window_manager.dart';
@@ -51,9 +51,13 @@ class CountdownScreenState extends State<CountdownScreen> with WindowListener {
     // Add a listener to the timer, when it reaches 0, show a notification and change the state
     _timer.addListener(() {
       if (_timer.kDuration == 0) {
+        // Show a notification
         showNotification();
+
+        // Change the state
         _timer.kDuration = inProgress ? kTimerRuleDuration.inSeconds : kRule;
         inProgress = !inProgress;
+
         setState(() {});
       }
     });
@@ -69,32 +73,35 @@ class CountdownScreenState extends State<CountdownScreen> with WindowListener {
     });
   }
 
-  @override
-  Future<void> onWindowMinimize() async {
-    if (forceModeEnabled.value) {
-      await handleWindowState();
-    }
-    super.onWindowMinimize();
-  }
+  // FIXME: This doesn't work
+  // @override
+  // Future<void> onWindowMinimize() async {
+  //   if (forceModeEnabled.value) {
+  //     await handleWindowState();
+  //   }
+  //   super.onWindowMinimize();
+  // }
 
-  @override
-  Future<void> onWindowBlur() async {
-    if (forceModeEnabled.value) {
-      await handleWindowState();
-    }
-    super.onWindowBlur();
-  }
+  // FIXME: This doesn't work
+  // @override
+  // Future<void> onWindowBlur() async {
+  //   if (forceModeEnabled.value) {
+  //     await handleWindowState();
+  //   }
+  //   super.onWindowBlur();
+  // }
 
-  Future<void> handleWindowState() async {
-    if (inProgress) {
-      await windowManager.show();
-      await windowManager.focus();
-      await windowManager.setFullScreen(true);
-    } else {
-      windowManager.minimize();
-      await windowManager.setFullScreen(false);
-    }
-  }
+  // FIXME: This doesn't work
+  // Future<void> handleWindowState() async {
+  //   if (inProgress) {
+  //     await windowManager.show();
+  //     await windowManager.focus();
+  //     await windowManager.setFullScreen(true);
+  //   } else {
+  //     windowManager.minimize();
+  //     await windowManager.setFullScreen(false);
+  //   }
+  // }
 
   @override
   void dispose() {
@@ -111,64 +118,65 @@ class CountdownScreenState extends State<CountdownScreen> with WindowListener {
           ? "Keep your gaze on the screen. Remember, every 20 minutes, take a 20-second break looking at something 20 feet away."
           : "Step back from the screen and focus on something 20 feet away for 20 seconds. Your eyes will thank you!",
     );
-    notification.onShow = _onShowNotification;
+    // FIXME: This doesn't work
+    // notification.onShow = _onShowNotification;
     notification.show();
   }
-
-  _onShowNotification() async {
-    if (forceModeEnabled.value) {
-      await handleWindowState();
-    }
-  }
+  // FIXME: This doesn't work
+  // Future<void> _onShowNotification() async {
+  //   if (forceModeEnabled.value) {
+  //     await handleWindowState();
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Eyes Care'),
-        centerTitle: true,
-        actions: [
-          AnimatedBuilder(
-            animation: _timer,
-            builder: (context, _) {
-              return IconButton(
-                icon: Icon(_timer.status == TimerStatus.pause
-                    ? Icons.play_arrow
-                    : Icons.pause),
-                onPressed: () {
-                  if (_timer.status == TimerStatus.pause) {
-                    _timer.start();
-                  } else {
-                    _timer.pause();
-                  }
-                },
-              );
-            },
-          ),
-          IconButton(
-            onPressed: _timer.restart,
-            icon: const Icon(Icons.restart_alt),
-          ),
-          IconButton(
-            onPressed: windowManager.minimize,
-            icon: const Icon(Icons.minimize_rounded),
-          ),
-        ],
-        leading: ValueListenableBuilder(
-          valueListenable: themeNotifier,
-          builder: (context, _, __) {
-            final isLight = themeNotifier.value.index == 1;
-
-            return IconButton(
-              onPressed: () {
-                themeNotifier.value =
-                    isLight ? ThemeMode.dark : ThemeMode.light;
-              },
-              icon: Icon(isLight ? Icons.dark_mode : Icons.light_mode),
-            );
-          },
-        ),
+      appBar: CustomAppBar(
+        timer: _timer,
+        onToggle: () {
+          if (_timer.status == TimerStatus.pause) {
+            _timer.start();
+          } else {
+            _timer.pause();
+          }
+        },
+        onRestart: _timer.restart,
+        onMinimize: windowManager.minimize,
       ),
+      // AppBar(
+      //   title: const Text('Eyes Care'),
+      //   centerTitle: true,
+      //   actions: [
+      //     AnimatedBuilder(
+      //       animation: _timer,
+      //       builder: (context, _) {
+      //         return IconButton(
+      //           icon: Icon(
+      //             _timer.status == TimerStatus.pause
+      //                 ? Icons.play_arrow
+      //                 : Icons.pause,
+      //           ),
+      //           onPressed: () {
+      //             if (_timer.status == TimerStatus.pause) {
+      //               _timer.start();
+      //             } else {
+      //               _timer.pause();
+      //             }
+      //           },
+      //         );
+      //       },
+      //     ),
+      //     IconButton(
+      //       onPressed: _timer.restart,
+      //       icon: const Icon(Icons.restart_alt),
+      //     ),
+      //     IconButton(
+      //       onPressed: windowManager.minimize,
+      //       icon: const Icon(Icons.minimize_rounded),
+      //     ),
+      //   ],
+      // ),
       body: Container(
         padding: const EdgeInsets.all(8.0),
         child: Flex(
